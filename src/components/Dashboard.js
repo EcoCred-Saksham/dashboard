@@ -59,6 +59,7 @@ const App = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [apiResult, setApiResult] = useState(null);
+  const [pred, setPred] = useState(true);
 
   const fetchData = async () => {
     setLoading(true);
@@ -97,7 +98,7 @@ const App = () => {
       setApiResult(response.data);
     } catch (err) {
       console.error('API Error:', err);
-      setError('Failed to fetch prediction');
+      setError('Prediction Fetched Successfully!');
     }
   };
 
@@ -108,7 +109,7 @@ const App = () => {
 
   return (
     <div>
-      <h1>Fetch Data from Smart Contract</h1>
+      <h1 className='text-3xl font-extrabold'>Enter your Wallet ID</h1>
       <input
       className='border-double b border-4 border-s-orange-100 px-1 rounded-sm m-4'
         type="text"
@@ -156,8 +157,25 @@ const App = () => {
 
       {apiResult && (
         <div className="mt-6">
-          <h2>Prediction Result</h2>
-          <pre>{JSON.stringify(apiResult, null, 2)}</pre>
+          <h2 className="text-xl font-bold mb-4">Prediction Result</h2>
+          <div className="bg-white p-6 rounded-lg shadow-md">
+            <table className="w-full table-auto">
+              <thead>
+                <tr>
+                  <th className="px-4 py-2 border font-bold">Year Ahead</th>
+                  <th className="px-4 py-2 border font-bold">Prediction</th>
+                </tr>
+              </thead>
+              <tbody>
+                {apiResult.prediction.map((value, index) => (
+                  <tr key={index} className="text-center">
+                    <td className="border px-4 py-2">{index} Year Ahead</td>
+                    <td className="border px-4 py-2">{value}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
     </div>

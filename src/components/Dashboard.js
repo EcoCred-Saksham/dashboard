@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Web3 from 'web3';
+import axios from 'axios';
 import { LineChart, Line, CartesianGrid, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 
 // Replace with your contract address and Infura project ID
@@ -57,6 +58,7 @@ const App = () => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [apiResult, setApiResult] = useState(null);
 
   const fetchData = async () => {
     setLoading(true);
@@ -69,11 +71,34 @@ const App = () => {
       
       console.log('Contract response:', formattedResult); // Log the response for debugging
       setData(formattedResult);
+
+      if (formattedResult.length >= 2) {
+        const val1 = Number(formattedResult[formattedResult.length - 2]);
+        const val2 = Number(formattedResult[formattedResult.length - 1]);
+        await predictApi(val1, val2);
+      } else {
+        throw new Error('Not enough data to make an API request');
+      }
     } catch (err) {
       console.error('Error:', err); // Log the error for debugging
       setError(err.message);
     }
     setLoading(false);
+  };
+
+  const predictApi = async (val1, val2) => {
+    try {
+      const response = await axios.post('https://swach-ml-api.onrender.com/predict', {
+        val1: val1.toString(),
+        val2: val2.toString(),
+      });
+
+      console.log('API response:', response.data);
+      setApiResult(response.data);
+    } catch (err) {
+      console.error('API Error:', err);
+      setError('Failed to fetch prediction');
+    }
   };
 
   const chartData = data.map((value, index) => ({
@@ -85,12 +110,13 @@ const App = () => {
     <div>
       <h1>Fetch Data from Smart Contract</h1>
       <input
+      className='border-double b border-4 border-s-orange-100 px-1 rounded-sm m-4'
         type="text"
         placeholder="Enter ID"
         value={id}
         onChange={(e) => setId(e.target.value)}
       />
-      <button onClick={fetchData} disabled={loading}>
+      <button className='bg-green-600 rounded-md shadow-md px-2 text-center text-white' onClick={fetchData} disabled={loading}>
         {loading ? 'Loading...' : 'Fetch Data'}
       </button>
       {error && <p>Error: {error}</p>}
@@ -127,6 +153,13 @@ const App = () => {
           </LineChart>
         </ResponsiveContainer>
       </div>
+
+      {apiResult && (
+        <div className="mt-6">
+          <h2>Prediction Result</h2>
+          <pre>{JSON.stringify(apiResult, null, 2)}</pre>
+        </div>
+      )}
     </div>
   );
 };

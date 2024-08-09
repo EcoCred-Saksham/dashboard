@@ -3,11 +3,9 @@ import Web3 from 'web3';
 import axios from 'axios';
 import { LineChart, Line, CartesianGrid, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 
-// Replace with your contract address and Infura project ID
 const CONTRACT_ADDRESS = '0xDf0544702106ceD00505Ff1fEb7D6Cb0912eEbfC';
 const INFURA_PROJECT_ID = '7397550ad411423f8fe36a339dfda5a5';
 
-// Initialize Web3 with Infura provider
 const web3 = new Web3(`https://polygon-amoy.infura.io/v3/${INFURA_PROJECT_ID}`);
 
 // ABI for the smart contract
@@ -59,18 +57,18 @@ const App = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [apiResult, setApiResult] = useState(null);
-  const [pred, setPred] = useState(true);
+  const [pred, setPred] = useState(false);
 
   const fetchData = async () => {
     setLoading(true);
     setError('');
     try {
       if (!id) throw new Error('ID cannot be empty');
-      const parsedId = web3.utils.toBigInt(id); // Convert ID to BigNumber
+      const parsedId = web3.utils.toBigInt(id); 
       const result = await contract.methods.getData(parsedId).call();
       const formattedResult = result.map(value => web3.utils.toBigInt(value));
       
-      console.log('Contract response:', formattedResult); // Log the response for debugging
+      console.log('Contract response:', formattedResult); 
       setData(formattedResult);
 
       if (formattedResult.length >= 2) {
@@ -81,7 +79,7 @@ const App = () => {
         throw new Error('Not enough data to make an API request');
       }
     } catch (err) {
-      console.error('Error:', err); // Log the error for debugging
+      console.error('Error:', err); 
       setError(err.message);
     }
     setLoading(false);
@@ -155,7 +153,10 @@ const App = () => {
         </ResponsiveContainer>
       </div>
 
-      {apiResult && (
+      <button className='px-2 text-center text-white bg-green-500 rounded-md mb-5' type="" onClick={() => setPred(true)}>Predict Future Results</button>
+
+
+      {apiResult && pred &&  (
         <div className="mt-6">
           <h2 className="text-xl font-bold mb-4">Prediction Result</h2>
           <div className="bg-white p-6 rounded-lg shadow-md">
